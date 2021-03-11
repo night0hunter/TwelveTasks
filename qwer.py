@@ -4,10 +4,10 @@ import pygame, requests, sys, os
 api_server = "http://static-maps.yandex.ru/1.x/"
 
 
-def load_map():
+def load_map(scale):
     lon = 37.481338 # Координаты центра карты на старте. Задал координаты университета
     lat = 55.669913
-    delta = "0.002"
+    delta = str(scale)
     params = {
         "ll": ",".join([str(lon), str(lat)]),
         "spn": ",".join([delta, delta]),
@@ -27,20 +27,61 @@ def load_map():
         print("Ошибка записи временного файла:", ex)
         sys.exit(2)
     return map
-         
+
+
+def page_up(scale):
+    if scale <= 0.31:
+        if scale == 0.001:
+            scale += 0.001
+        elif scale == 0.002:
+            scale += 0.001
+        elif scale == 0.003:
+            scale += 0.003
+        elif scale == 0.006:
+            scale += 0.005
+        elif scale == 0.011:
+            scale += 0.02
+    map = load_map(scale)
+    return map, scale
+
+
+def page_down(scale):
+    if scale >= 0.001:
+        if scale == 0.002:
+            scale -= 0.001
+        elif scale == 0.003:
+            scale -= 0.001
+        elif scale == 0.006:
+            scale -= 0.003
+        elif scale == 0.011:
+            scale = round(scale - 0.005, 3)
+        elif scale == 0.031:
+            scale -= 0.02
+    map = load_map(scale)
+    return map, scale 
+
+      
 def main():
     pygame.init()
     screen = pygame.display.set_mode((600, 450))
     running = True
+    scale = 0.002
+    map = load_map(scale)
+    screen.blit(pygame.image.load(map), (0, 0))
     while running:
         event = pygame.event.wait()
         if event.type == pygame.QUIT:
            running = False
-        map = load_map()
-        screen.blit(pygame.image.load(map), (0, 0))
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                new_map, scale = page_up(scale)
+                screen.blit(pygame.image.load(new_map), (0, 0))
+            if event.key == pygame.K_DOWN:
+                new_map, scale = page_down(scale)
+                screen.blit(pygame.image.load(new_map), (0, 0))
         pygame.display.flip()
     pygame.quit()
     os.remove(map) 
-   
+
 if __name__ == "__main__":
     main()
