@@ -73,10 +73,10 @@ def main():
         if event.type == pygame.QUIT:
            running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
+            if event.key == pygame.K_PAGEUP:
                 new_map, scale = page_up(scale)
                 screen.blit(pygame.image.load(new_map), (0, 0))
-            if event.key == pygame.K_DOWN:
+            if event.key == pygame.K_PAGEDOWN:
                 new_map, scale = page_down(scale)
                 screen.blit(pygame.image.load(new_map), (0, 0))
         pygame.display.flip()
