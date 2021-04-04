@@ -4,9 +4,8 @@ import pygame, requests, sys, os
 api_server = "http://static-maps.yandex.ru/1.x/"
 
 
-def load_map(scale):
-    lon = 37.481338 # Координаты центра карты на старте. Задал координаты университета
-    lat = 55.669913
+def load_map(scale, lon, lat):
+    lon, lat = lon, lat
     delta = str(scale)
     params = {
         "ll": ",".join([str(lon), str(lat)]),
@@ -41,7 +40,7 @@ def page_up(scale):
             scale += 0.005
         elif scale == 0.011:
             scale += 0.02
-    map = load_map(scale)
+    map = load_map(scale, 0, 0)
     return map, scale
 
 
@@ -60,13 +59,15 @@ def page_down(scale):
     map = load_map(scale)
     return map, scale 
 
-      
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((600, 450))
     running = True
+    lon = 37.481338 
+    lat = 55.669913
     scale = 0.002
-    map = load_map(scale)
+    map = load_map(scale, lon, lat)
     screen.blit(pygame.image.load(map), (0, 0))
     while running:
         event = pygame.event.wait()
@@ -79,9 +80,22 @@ def main():
             if event.key == pygame.K_PAGEDOWN:
                 new_map, scale = page_down(scale)
                 screen.blit(pygame.image.load(new_map), (0, 0))
+            if event.key == pygame.K_RIGHT:
+                lon += 0.001
+                screen.blit(pygame.image.load(load_map(scale, lon, lat)), (0, 0))
+            if event.key == pygame.K_LEFT:
+                lon -= 0.001
+                screen.blit(pygame.image.load(load_map(scale, lon, lat)), (0, 0))
+            if event.key == pygame.K_UP:
+                lat += 0.001
+                screen.blit(pygame.image.load(load_map(scale, lon, lat)), (0, 0))
+            if event.key == pygame.K_DOWN:
+                lat -= 0.001
+                screen.blit(pygame.image.load(load_map(scale, lon, lat)), (0, 0))
         pygame.display.flip()
     pygame.quit()
     os.remove(map) 
+
 
 if __name__ == "__main__":
     main()
