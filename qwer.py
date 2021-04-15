@@ -5,11 +5,10 @@ api_server = "http://static-maps.yandex.ru/1.x/"
 
 
 def load_map(scale, lon, lat, view):
-    lon, lat, view = lon, lat, view
-    delta = str(scale)
+    lon, lat, view, delta = lon, lat, view, scale
     params = {
         "ll": ",".join([str(lon), str(lat)]),
-        "spn": ",".join([delta, delta]),
+        "spn": ",".join([str(delta), str(delta)]),
         "l": view
     }
     response = requests.get(api_server, params=params)
@@ -28,7 +27,7 @@ def load_map(scale, lon, lat, view):
     return map
 
 
-def page_up(scale, view):
+def page_up(scale):
     if scale <= 0.31:
         if scale == 0.001:
             scale += 0.001
@@ -40,11 +39,10 @@ def page_up(scale, view):
             scale += 0.005
         elif scale == 0.011:
             scale += 0.02
-    map = load_map(scale, 0, 0, view)
-    return map, scale
+    return scale
 
 
-def page_down(scale, view):
+def page_down(scale):
     if scale >= 0.001:
         if scale == 0.002:
             scale -= 0.001
@@ -56,8 +54,7 @@ def page_down(scale, view):
             scale = round(scale - 0.005, 3)
         elif scale == 0.031:
             scale -= 0.02
-    map = load_map(scale, 0, 0, view)
-    return map, scale 
+    return scale 
 
 
 def main():
@@ -75,12 +72,12 @@ def main():
         if event.type == pygame.QUIT:
            running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_EQUALS: #page_up
-                new_map, scale = page_up(scale, view)
-                screen.blit(pygame.image.load(new_map), (0, 0))
-            if event.key == pygame.K_MINUS: #page_down
-                new_map, scale = page_down(scale, view)
-                screen.blit(pygame.image.load(new_map), (0, 0))
+            if event.key == pygame.K_PAGEUP:
+                scale = page_up(scale)
+                screen.blit(pygame.image.load(load_map(scale, lon, lat, view)), (0, 0))
+            if event.key == pygame.K_PAGEDOWN:
+                scale = page_down(scale)
+                screen.blit(pygame.image.load(load_map(scale, lon, lat, view)), (0, 0))
             if event.key == pygame.K_RIGHT:
                 lon += 0.001
                 screen.blit(pygame.image.load(load_map(scale, lon, lat, view)), (0, 0))
